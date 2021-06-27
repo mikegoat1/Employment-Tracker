@@ -22,14 +22,16 @@ const start = () => {
       name: 'start',
       type: 'list',
       message: 'What would you like to do?',
-      choices: ['View All employees', 'View departments', 'View Roles','Add employee', "Add department", "Add Role","Update Employee Role"],
+      choices: ['View All employees', 'View departments', 'View Roles', 'Add employee', "Add department", "Add Role", "Update Employee Role"],
     })
     .then((answer) => {
       // based on their answer, either call the bid or the post functions
       if (answer.start === 'View All employees') {
-        readAllEmployee()
-      } else if (answer.postOrBid === 'BID') {
-        bidAuction();
+        readAllEmployee();
+      } else if (answer.start === 'View departments') {
+        readAllDepartments();
+      } else if (answer.start === "View Roles") {
+        readAllRoles();
       } else {
         connection.end();
       }
@@ -59,10 +61,40 @@ const readAllEmployee = () => {
     if (err) throw err;
     // Log all results of the SELECT statement
     console.table([res]);
-    start(); 
+    start();
   });
 };
 
+const readAllDepartments = () => {
+  console.log('Selecting all employee and departments...\n');
+  connection.query(`SELECT e.id, e.first_name, e.last_name,department.name AS 'department'
+  FROM employee e
+    LEFT JOIN  role
+      ON (e.role_id = role.id)
+    LEFT JOIN department
+      ON role.department_id = department.id;`, (err, res) => {
+    if (err) throw err;
+    // Log all results of the SELECT statement
+    console.log(res);
+    start();
+  });
+};
+
+const readAllRoles = () => {
+  console.log('Selecting all employee and roles...\n');
+  connection.query(`SELECT e.first_name, e.last_name, role.title, role.salary
+  FROM employee e
+    LEFT JOIN  role
+      ON (e.role_id = role.id)
+    LEFT JOIN department
+      ON role.department_id = department.id;
+      `, (err, res) => {
+    if (err) throw err;
+    // Log all results of the SELECT statement
+    console.log(res);
+    start();
+  });
+}
 // const deleteProduct = () => {
 //   console.log('Deleting all strawberry icecream...\n');
 //   connection.query(
@@ -130,5 +162,5 @@ const createProduct = () => {
 connection.connect((err) => {
   if (err) throw err;
   console.log(`connected as id ${connection.threadId}\n`);
-  start(); 
+  start();
 });

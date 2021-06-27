@@ -38,12 +38,22 @@ FROM employee e
 	LEFT JOIN department
     ON role.department_id = department.id;
     
--- This connects the role and department
+-- This is view with Employee and Department  
+SELECT e.first_name, e.last_name,department.name AS 'department'
+FROM employee e
+	LEFT JOIN  role
+    ON (e.role_id = role.id)
+	LEFT JOIN department
+    ON role.department_id = department.id;
 
-SELECT role.title, role.salary, department.name
-from role
-	Join department
-    on role.department_id = department.id;
+-- This is employee and roles
+SELECT e.first_name, e.last_name, role.title, role.salary
+FROM employee e
+	LEFT JOIN  role
+    ON (e.role_id = role.id)
+	LEFT JOIN department
+    ON role.department_id = department.id;
+    
 
 
     
