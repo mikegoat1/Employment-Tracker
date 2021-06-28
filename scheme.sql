@@ -54,6 +54,8 @@ FROM employee e
 	LEFT JOIN department
     ON role.department_id = department.id;
     
+    
+
 
 
     
