@@ -30,21 +30,21 @@ Design the following database schema containing three tables:
   
 Build a command-line application that at a minimum allows the user to:
 
-  * Add departments, roles, employees
+* Add departments, roles, employees
 
-  * View departments, roles, employees
+* View departments, roles, employees
 
-  * Update employee roles
+* Update employee roles
 
 Bonus points if you're able to:
 
-  * Update employee managers
+* Update employee managers
 
-  * View employees by manager
+* View employees by manager
 
-  * Delete departments, roles, and employees
+* Delete departments, roles, and employees
 
-  * View the total utilized budget of a department -- ie the combined salaries of all employees in that department
+* View the total utilized budget of a department -- ie the combined salaries of all employees in that department
 
 We can frame this challenge as follows:
 
@@ -126,14 +126,13 @@ We would like you to have well over 200 commits by graduation, so commit early a
 
 **Important**: You will be committing a file that contains your database credentials. Make sure your MySQL password is not used for any other personal accounts, because it will be visible on GitHub. In upcoming lessons, you will learn how to better secure this password, or you can start researching npm packages now that could help you.
 
-
 ## Submission on BCS
 
 You are required to submit the following:
 
 * The URL of the GitHub repository
 
-* A video demonstrating the entirety of the app's functionality 
+* A video demonstrating the entirety of the app's functionality
 
 - - -
 © 2021 Trilogy Education Services, LLC, a 2U, Inc. brand. Confidential and Proprietary. All Rights Reserved.

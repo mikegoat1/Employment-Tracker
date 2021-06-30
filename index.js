@@ -33,40 +33,41 @@ const start = () => {
       } else if (answer.start === "View Roles") {
         readAllRoles();
       } else if (answer.start === 'Update Employee Role') {
-        updateEmployeeRole(); 
-      } else if(answer.start === 'Add employee') {
+        updateEmployeeRole();
+      } else if (answer.start === 'Add employee') {
         addEmployee();
+      } else if (answer.start === "Add Role") {
+        addRole();
+      } else if (answer.start === "Add department") {
+        addDepartment();
       } else {
         connection.end();
       }
     });
 };
 
-
-
-
-
-
-
-
-
-
-
-
-//TODO Help getting console.table to show correctly
 const readAllEmployee = () => {
   console.log('Selecting all employee...\n');
-  connection.query(`SELECT e.id, e.first_name, e.last_name, e.manager_id AS 'manager', role.title, role.salary, department.name AS 'department'
+  connection.query(`SELECT e.id, 
+  e.first_name, 
+  e.last_name, 
+  concat(manager.first_name, ' ', manager.last_name) AS manager, 
+  role.title, 
+  role.salary, 
+  department.name AS 'department'
   FROM employee e
     LEFT JOIN  role
       ON (e.role_id = role.id)
     LEFT JOIN department
-      ON role.department_id = department.id;`, (err, res) => {
+      ON role.department_id = department.id
+    LEFT JOIN employee manager
+      ON manager.id = e.manager_id;`, (err, res) => {
     if (err) throw err;
     // Log all results of the SELECT statement
-    console.table([res]);
+    console.table(res);
     start();
   });
+
 };
 
 const readAllDepartments = () => {
@@ -79,7 +80,7 @@ const readAllDepartments = () => {
       ON role.department_id = department.id;`, (err, res) => {
     if (err) throw err;
     // Log all results of the SELECT statement
-    console.log(res);
+    console.table(res);
     start();
   });
 };
@@ -95,7 +96,7 @@ const readAllRoles = () => {
       `, (err, res) => {
     if (err) throw err;
     // Log all results of the SELECT statement
-    console.log(res);
+    console.table(res);
     start();
   });
 }
@@ -122,7 +123,7 @@ const updateEmployeeRole = () => {
         name: 'title',
         type: 'list',
         message: 'What do you want to update the Role to?',
-        choices: ['Salesperson', 'Sales Lead','Software Engineer','Lead Engineer','Accountant','Lawyer','Legal Team Lead']
+        choices: ['Salesperson', 'Sales Lead', 'Software Engineer', 'Lead Engineer', 'Accountant', 'Lawyer', 'Legal Team Lead']
       },
       {
         name: 'salary',
@@ -133,38 +134,38 @@ const updateEmployeeRole = () => {
         name: 'id',
         type: 'input',
         message: 'What is the id of the person who role you would like to change?',
-        
+
       },
     ])
     .then((answer) => {
       // when finished prompting, insert a new item into the db with that info
       console.log('Updating all employee Role...\n');
-  const query = connection.query(
-    'UPDATE role SET ? , ? WHERE ?',
-    [
-      {
-        title: answer.title,
-      },
-      {
-        salary: answer.salary,
-      },
-      {
-        id: answer.id,
-      },
-    ],
-    (err, res) => {
-      if (err) throw err;
-      console.log(`${res.affectedRows} role updated!\n`);
-    
-    }
-  );
+      const query = connection.query(
+        'UPDATE role SET ? , ? WHERE ?',
+        [
+          {
+            title: answer.title,
+          },
+          {
+            salary: answer.salary,
+          },
+          {
+            id: answer.id,
+          },
+        ],
+        (err, res) => {
+          if (err) throw err;
+          console.log(`${res.affectedRows} role updated!\n`);
+          start()
+        }
+      );
 
-  // logs the actual query being run
-  console.log(query.sql);
+      // logs the actual query being run
+      console.log(query.sql);
     });
 };
 
-//TODO how to get role_id to increment without adding 
+
 const addEmployee = () => {
   // prompt for info about the item being put up for auction
   inquirer
@@ -183,7 +184,7 @@ const addEmployee = () => {
         name: 'manager',
         type: 'input',
         message: 'What is the manager id?',
-        
+
       },
       {
         name: "role",
@@ -211,25 +212,84 @@ const addEmployee = () => {
       );
     });
 };
-const createProduct = () => {
-  console.log('Inserting a new product...\n');
-  const query = connection.query(
-    'INSERT INTO products SET ?',
-    {
-      flavor: 'Rocky Road',
-      price: 3.0,
-      quantity: 50,
-    },
-    (err, res) => {
-      if (err) throw err;
-      console.log(`${res.affectedRows} product inserted!\n`);
-      // Call updateProduct AFTER the INSERT completes
-      updateProduct();
-    }
-  );
 
-  // logs the actual query being run
-  console.log(query.sql);
+const addRole = () => {
+  // prompt for info about the item being put up for auction
+  inquirer
+    .prompt([
+      {
+        name: 'title',
+        type: 'list',
+        message: 'What Role do you want to add?',
+        choices: ['Salesperson', 'Sales Lead', 'Software Engineer', 'Lead Engineer', 'Accountant', 'Lawyer', 'Legal Team Lead'],
+      },
+      {
+        name: 'salary',
+        type: 'input',
+        message: 'Whats the Salary?',
+      },
+    ])
+    .then((answer) => {
+      // when finished prompting, insert a new item into the db with that info
+      connection.query(
+        'INSERT INTO role SET ?',
+        // QUESTION: What does the || 0 do?
+        {
+          title: answer.title,
+          salary: answer.salary,
+          department_id: whatDepartment(answer.title),
+        },
+        (err) => {
+          if (err) throw err;
+          console.log('You added another role');
+          // re-prompt the user for if they want to bid or post
+          start();
+        }
+      );
+    });
+};
+
+function whatDepartment(str) {
+  if (str === "Salesperson" || "Sales Lead") {
+    return 1;
+  } else if (str === "Lead Engineer" || "Software Engineer") {
+    return 2;
+  } else if (str === "Accountant") {
+    return 3;
+  } else if (str === "Legal Team Lead" || "Lawyer") {
+    return 4;
+  } else {
+    return str;
+  }
+}
+const addDepartment = () => {
+  inquirer
+    .prompt([
+      {
+        name: "department",
+        type: "input",
+        message: "What is the new department?"
+      }
+    ])
+
+    .then((answer) => {
+      console.log('Inserting a new department...\n');
+      const query = connection.query(
+        'INSERT INTO department SET ?',
+        {
+          name: answer.department,
+        },
+        (err, res) => {
+          if (err) throw err;
+          console.log(`${res.affectedRows} department inserted!\n`);
+          // Call updateProduct AFTER the INSERT completes
+          start();
+        }
+      );
+
+      // logs the actual query being run
+      console.log(query.sql);
+    });
 };
 
 
